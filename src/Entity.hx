@@ -1,7 +1,14 @@
+import h2d.Anim;
 import h2d.Tile;
 import h2d.Bitmap;
 import Level;
 import h2d.Object;
+
+enum GraphicType {
+	Bitmap;
+	Anim;
+	None;
+}
 
 class Entity {
 	static public var ALL:Array<Entity> = new Array<Entity>();
@@ -20,64 +27,162 @@ class Entity {
 	var dx:Float = 0;
 	var dy:Float = 0;
 
-	// Offset sprite
-	var ox:Float = 0;
-	var oy:Float = 0;
+	// Offset bitmap
+	var bx:Float = 0;
+	var by:Float = 0;
+
+	// Offset anim
+	var ax:Float = 0;
+	var ay:Float = 0;
 
 	// Flags
 	var visible:Bool = true;
 
-	// Sprite
-	var sprite:Bitmap;
+	// GRAPHICS
+	var bitmap:Bitmap;
+	var anim:Anim;
+	var myGraphicUpdate:Float->Void;
 
 	// Constructor
-	public function new(x:Float, y:Float, level:Level, ?b:Bitmap, ?center:Bool = false) {
+	public function new(x:Float, y:Float, level:Level, ?b:Bitmap, ?a:Anim) {
 		this.level = level;
 		this.x = x;
 		this.y = y;
 
-		if (b != null)
-			this.set_sprite(b);
-
-		this.level.addEntity(this);
-		ALL.push(this);
-
-		if (center) {
-			this.anchorSpriteCenter();
+		// IF ANIMATION
+		if (a != null) {
+			this.setAnim(a);
+		} else {
+			// IF NOT ANIMATION
+			if (b != null) {
+				this.setBitmap(b);
+			}
 		}
+
+		// Automatically choose the graphical update
+		this.setGraphicalUpdate();
+
+		// Add update to level control
+		this.level.addEntity(this);
+
+		// Add to entity pool
+		ALL.push(this);
 	}
 
-	public function set_sprite(b:Bitmap) {
-		this.level.removeChild(sprite);
-		this.sprite = b;
-		this.level.addChild(sprite);
-		this.sprite.x = x + ox;
-		this.sprite.y = y + oy;
+	public function setBitmap(b:Bitmap) {
+		this.level.removeChild(bitmap);
+		this.bitmap = b;
+		this.level.addChild(bitmap);
+		this.bitmap.x = x + bx;
+		this.bitmap.y = y + by;
+	}
+
+	public function setAnim(a:Anim) {
+		this.level.removeChild(anim);
+		this.anim = a;
+		this.level.addChild(anim);
+		this.anim.x = x + ax;
+		this.anim.y = y + ay;
 	}
 
 	// Boilerplate
 	public function update(tmod:Float) {
-		// Update sprite position
-		if (sprite != null) {
-			this.sprite.x = x + ox;
-			this.sprite.y = y + oy;
+		myGraphicUpdate(tmod);
+	}
+
+	// Types of graphical update ----------------------------------
+
+	function setGraphicalUpdate(?t:GraphicType, ?remove:Bool = true) {
+		if (t != null) {
+			switch (t) {
+				case Bitmap:
+					this.myGraphicUpdate = updateBitmap;
+					if (remove) {
+						if (this.anim != null) {
+							this.level.removeChild(anim);
+							this.anim = null;
+						}
+					}
+
+				case Anim:
+					this.myGraphicUpdate = updateAnim;
+					if (remove) {
+						if (this.bitmap != null) {
+							this.level.removeChild(bitmap);
+							this.bitmap = null;
+						}
+					}
+				case None:
+					this.myGraphicUpdate = updateNothing;
+					if (remove) {
+						if (this.bitmap != null) {
+							this.level.removeChild(bitmap);
+							this.bitmap = null;
+						}
+						if (this.anim != null) {
+							this.level.removeChild(anim);
+							this.anim = null;
+						}
+					}
+			}
+		} else {
+			if (this.anim != null) {
+				this.myGraphicUpdate = updateAnim;
+				if (remove) {
+					if (this.bitmap != null) {
+						this.level.removeChild(bitmap);
+						this.bitmap = null;
+					}
+				}
+			} else {
+				if (this.bitmap != null) {
+					this.myGraphicUpdate = updateBitmap;
+					if (remove) {
+						if (this.anim != null) {
+							this.level.removeChild(anim);
+							this.anim = null;
+						}
+					}
+				} else {
+					this.myGraphicUpdate = updateNothing;
+					if (remove) {
+						if (this.bitmap != null) {
+							this.level.removeChild(bitmap);
+							this.bitmap = null;
+						}
+						if (this.anim != null) {
+							this.level.removeChild(anim);
+							this.anim = null;
+						}
+					}
+				}
+			}
 		}
 	}
 
+	function updateBitmap(tmod:Float) {
+		this.bitmap.x = x + bx;
+		this.bitmap.y = y + by;
+	}
+
+	function updateAnim(tmod:Float) {
+		this.anim.x = x + ax;
+		this.anim.y = y + ay;
+	}
+
+	function updateNothing(tmod:Float) {}
+
+	// ----------------------------------------------------------------
+
 	public function delete() {
+		// Remove graphics
+		this.level.removeChild(this.anim);
+		this.level.removeChild(this.bitmap);
+
+		// Remove entity control
 		ALL.remove(this);
+
+		// Remove level update
 		this.level.removeEntity(this);
-	}
-
-	public function anchorSpriteCenter() {
-		this.anchorSprite(this.sprite.tile.width / 2, this.sprite.tile.height / 2);
-	}
-
-	public function anchorSprite(x:Float, y:Float) {
-		this.sprite.tile.dx = -x;
-		this.sprite.tile.dy = -y;
-
-		this.ox = x;
-		this.oy = y;
 	}
 }

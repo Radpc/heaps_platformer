@@ -89,9 +89,9 @@ class Hero extends Collideable {
 		direction != 0 ? this.dx += direction * tmod * ACCEL : this.dx /= 1 + tmod * DECCEL;
 
 		// Other bindings -----------------------------------
-		// Change sprite
+		// Change bitmap
 		if (K.isDown(K.A))
-			this.sprite.tile = Tile.fromColor(Std.random(0xffffff), 30, 30);
+			this.bitmap.tile = Tile.fromColor(Std.random(0xffffff), 30, 30);
 
 		// Jump
 		if (K.isDown(K.UP)) {

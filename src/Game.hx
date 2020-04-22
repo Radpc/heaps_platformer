@@ -29,7 +29,6 @@ class Game extends hxd.App {
 
 		// Change the scene
 		setScene2D(level);
-
 		hxd.Window.getInstance().vsync = true;
 
 		READY = true;

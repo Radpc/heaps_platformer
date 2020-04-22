@@ -27,7 +27,6 @@ class Button extends Text implements UI {
 		this.text = buttonText;
 		this.level = l;
 		setColor(0.9, 0.9, 0.9);
-		this.textAlign = Center;
 
 		this.onResize();
 
