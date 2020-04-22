@@ -1,0 +1,139 @@
+{
+	"sheets": [
+		{
+			"name": "Level",
+			"columns": [
+				{
+					"name": "id",
+					"typeStr": "0"
+				},
+				{
+					"name": "width",
+					"typeStr": "3"
+				},
+				{
+					"name": "height",
+					"typeStr": "3"
+				},
+				{
+					"name": "props",
+					"typeStr": "16"
+				},
+				{
+					"name": "tileProps",
+					"typeStr": "8"
+				},
+				{
+					"name": "layers",
+					"typeStr": "8"
+				},
+				{
+					"typeStr": "8",
+					"name": "NPC"
+				}
+			],
+			"lines": [
+				{
+					"id": "",
+					"width": 128,
+					"height": 128,
+					"tileProps": [],
+					"layers": [
+						{
+							"name": "Triggers",
+							"data": null
+						}
+					],
+					"props": {
+						"tileSize": 16,
+						"layers": [
+							{
+								"l": "Triggers",
+								"p": {
+									"alpha": 1
+								}
+							}
+						]
+					},
+					"NPC": []
+				}
+			],
+			"separators": [],
+			"props": {
+				"level": {
+					"tileSets": {
+						"mario.png": {
+							"stride": 31,
+							"sets": [
+								{
+									"x": 15,
+									"y": 3,
+									"w": 1,
+									"h": 1,
+									"t": "object",
+									"opts": {}
+								},
+								{
+									"x": 5,
+									"y": 5,
+									"w": 2,
+									"h": 2,
+									"t": "ground",
+									"opts": {}
+								}
+							],
+							"props": []
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "Level@tileProps",
+			"props": {
+				"hide": true
+			},
+			"separators": [],
+			"lines": [],
+			"columns": []
+		},
+		{
+			"name": "Level@layers",
+			"props": {
+				"hide": true
+			},
+			"separators": [],
+			"lines": [],
+			"columns": [
+				{
+					"name": "name",
+					"typeStr": "1"
+				},
+				{
+					"name": "data",
+					"typeStr": "15"
+				}
+			]
+		},
+		{
+			"name": "Level@NPC",
+			"props": {
+				"hide": true
+			},
+			"separators": [],
+			"lines": [],
+			"columns": [
+				{
+					"typeStr": "3",
+					"name": "X"
+				},
+				{
+					"typeStr": "3",
+					"name": "Y"
+				}
+			]
+		}
+	],
+	"customTypes": [],
+	"compress": false
+}

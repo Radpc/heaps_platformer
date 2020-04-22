@@ -1,0 +1,7 @@
+-lib castle
+-lib heaps
+-lib hlsdl
+-lib hxWidgets
+-hl bin/game.hl
+-main Game
+-cp src
