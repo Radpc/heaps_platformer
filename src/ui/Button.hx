@@ -4,12 +4,14 @@ import h2d.Scene;
 import h2d.Text;
 import h2d.Interactive;
 
-class Button extends Text {
+class Button extends Text implements UI {
+	public var ACTIVE:Bool = false;
+
 	var customFont:h2d.Font;
 	var actualColor:h3d.Vector;
 	var hoveredColor:h3d.Vector;
 	var i:Interactive;
-	var scene:Scene;
+	var level:Level;
 
 	function onHover(_) {
 		this.color = hoveredColor;
@@ -19,19 +21,15 @@ class Button extends Text {
 		this.color = actualColor;
 	}
 
-	function onClick(_) {
-		this.text += '\nClicked!';
-	}
-
-	override public function new(buttonText:String, sc:h2d.Scene, onClick:hxd.Event->Void) {
+	override public function new(buttonText:String, l:Level, onClick:hxd.Event->Void) {
 		customFont = hxd.res.DefaultFont.get();
-		super(customFont, sc);
+		super(customFont, l);
 		this.text = buttonText;
-		this.scene = sc;
+		this.level = l;
 		setColor(0.9, 0.9, 0.9);
 		this.textAlign = Center;
 
-		this.resetPosition();
+		this.onResize();
 
 		var my_width:Float = calcTextWidth(text);
 		var my_height:Float = get_textHeight();
@@ -42,7 +40,7 @@ class Button extends Text {
 
 		this.i.onOver = onHover;
 		this.i.onOut = onOut;
-		this.i.onClick = this.onClick;
+		this.i.onClick = onClick;
 	}
 
 	function setColor(r:Float, g:Float, b:Float) {
@@ -52,13 +50,14 @@ class Button extends Text {
 		this.color = this.actualColor;
 	};
 
-	public function resetPosition() {
-		this.x = this.scene.width >> 1;
-		this.y = this.scene.height >> 1;
+	public function onResize() {
+		this.x = this.level.width >> 1;
+		this.y = this.level.height >> 1;
 	}
 
-	public function reposition() {
-		this.x = hxd.Window.getInstance().width >> 1;
-		this.y = hxd.Window.getInstance().height >> 1;
+	public function onDelete() {
+		this.level.removeUI(this);
 	}
+
+	public function update(dt:Float) {}
 }

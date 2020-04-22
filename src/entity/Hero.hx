@@ -14,12 +14,13 @@ enum State {
 
 class Hero extends Collideable {
 	// Values
+	final ACCEL = 0.5;
 	final DECCEL = 0.1;
 	final maxDy = 30;
 	final maxDx = 5;
-	final ACCEL = 0.5;
 	final GRAVITY = 0.8;
 	final JUMP_POWER = 10;
+	final AIRFACTOR = 0.5;
 
 	// Sprite
 	final SPR_WIDTH:Int = 30;
@@ -40,7 +41,6 @@ class Hero extends Collideable {
 
 		// Set first state
 		setState(GROUND);
-		Cooldown.add('hero_color', 5);
 	}
 
 	override function update(tmod:Float) {
@@ -48,9 +48,11 @@ class Hero extends Collideable {
 
 		// Run current state
 		this.state(tmod);
-		if (!Cooldown.isAlive('hero_color')) {
-			this.sprite.tile = Tile.fromColor(0x404040, SPR_WIDTH, SPR_HEIGHT);
-		}
+	}
+
+	public function setPosition(x:Float, y:Float) {
+		this.x = x;
+		this.y = y;
 	}
 
 	public function setState(s:State) {
@@ -67,32 +69,38 @@ class Hero extends Collideable {
 		}
 	}
 
-	// States ===================================================
+	// States =======================================================================
 	// Moving state - Ground
 	function stGround(tmod:Float) {
-		var isGrounded:Bool = false;
-
+		// Apply gravity to check ground --------------------
 		this.dy += GRAVITY;
 
-		if (K.isDown(K.RIGHT)) {
-			this.dx += tmod * ACCEL;
-		} else {
-			if (K.isDown(K.LEFT)) {
-				this.dx -= tmod * ACCEL;
-			} else {
-				this.dx /= 1 + tmod * DECCEL;
-			}
-		}
+		// Initial flags ------------------------------------
+		var isGrounded:Bool = false;
+		var direction:Int = 0;
 
-		if (K.isDown(K.A)) {
+		// X movement ---------------------------------------
+		if (K.isDown(K.RIGHT))
+			direction++;
+
+		if (K.isDown(K.LEFT))
+			direction--;
+
+		direction != 0 ? this.dx += direction * tmod * ACCEL : this.dx /= 1 + tmod * DECCEL;
+
+		// Other bindings -----------------------------------
+		// Change sprite
+		if (K.isDown(K.A))
 			this.sprite.tile = Tile.fromColor(Std.random(0xffffff), 30, 30);
-		}
 
+		// Jump
 		if (K.isDown(K.UP)) {
 			this.dy -= JUMP_POWER;
 			setState(AIR);
 		}
 
+		// Collision ----------------------------------------
+		// Y
 		for (c in Collideable.ALL) {
 			if (c.col.type == Solid) {
 				if (this.resolveY(c) != 0) {
@@ -102,19 +110,21 @@ class Hero extends Collideable {
 			}
 		}
 
+		// X
 		for (c in Collideable.ALL) {
 			if (c.col.type == Solid) {
 				if (this.resolveX(c) != 0) {
-					x += resolveX(c).decreaseAbs();
-					dx = 0;
+					dx = resolveX(c);
 				}
 			}
 		}
 
+		// Change state if needed ---------------------------
 		if (!isGrounded && stateName != AIR) {
 			setState(AIR);
 		}
 
+		// Real movement ------------------------------------
 		this.dy = dy.clamp(maxDy);
 		this.dx = dx.clamp(maxDx);
 		this.x += this.dx * tmod;
@@ -123,41 +133,45 @@ class Hero extends Collideable {
 
 	// Moving state - Air
 	function stAir(tmod:Float) {
+		// Apply gravity to check ground --------------------
 		dy += GRAVITY * tmod;
 
+		// Initial flags ------------------------------------
+		var direction:Int = 0;
+
+		// X movement ---------------------------------------
+		if (K.isDown(K.RIGHT))
+			direction++;
+
+		if (K.isDown(K.LEFT))
+			direction--;
+
+		direction != 0 ? this.dx += direction * tmod * ACCEL * AIRFACTOR : this.dx /= 1 + tmod * DECCEL * AIRFACTOR;
+
+		// Collision ----------------------------------------
+		// Y
 		for (c in Collideable.ALL) {
 			if (c.col.type == Solid) {
 				if (this.resolveY(c) != 0) {
-					var r = resolveY(c).decreaseAbs();
-
-					dy = r; // Stop the element
-
-					if (r == 0) {
-						this.x += resolveY(c);
-						this.dy = 0;
-						setState(GROUND);
-					}
+					dy = resolveY(c); // Approach to ground or ceiling
+					setState(GROUND);
 				}
 			}
 		}
 
+		// X
 		for (c in Collideable.ALL) {
 			if (c.col.type == Solid) {
 				if (this.resolveX(c) != 0) {
-					x += resolveX(c).decreaseAbs(); // Approximate
-					dx = 0; // Stop
+					dx = resolveX(c); // Approach to the wall
 				}
 			}
 		}
 
+		// Real movement ------------------------------------
 		this.dy = dy.clamp(maxDy);
 		this.dx = dx.clamp(maxDx);
 		this.x += this.dx * tmod;
 		this.y += this.dy * tmod;
-	}
-
-	public function setPosition(x:Float, y:Float) {
-		this.x = x;
-		this.y = y;
 	}
 }

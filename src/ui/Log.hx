@@ -3,10 +3,13 @@ package ui;
 import h2d.Font;
 import h2d.Text;
 
-class Log extends Text implements Resizeable {
+class Log extends Text implements UI {
+	public var ACTIVE:Bool = false;
+
 	var customFont:Font;
 	var messageArray:Array<String>;
 	var messageHeight:Int;
+	var level:Level;
 
 	final paddingBottom:Int = 5;
 	final paddingLeft:Int = 10;
@@ -15,6 +18,7 @@ class Log extends Text implements Resizeable {
 	override public function new(level:Level) {
 		this.customFont = hxd.res.DefaultFont.get();
 		super(customFont, level);
+		this.level = level;
 
 		text = 'Log is ready';
 
@@ -53,4 +57,10 @@ class Log extends Text implements Resizeable {
 		this.x = paddingLeft;
 		this.y = hxd.Window.getInstance().height - paddingBottom - this.messageHeight;
 	}
+
+	public function onDelete() {
+		this.level.removeUI(this);
+	}
+
+	public function update(dt:Float) {}
 }

@@ -25,7 +25,7 @@ class Game extends hxd.App {
 
 		// Initialize the log
 		LOG = new ui.Log(level);
-		level.addResizeable(LOG);
+		level.addUI(LOG);
 
 		// Change the scene
 		setScene2D(level);

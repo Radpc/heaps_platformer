@@ -10,6 +10,10 @@ enum CollisionType {
 	Player;
 }
 
+/*
+	The class works in this way. If it's dormant, it will not update it's collision mask. If it is, everytime, at the ent
+	of the update cycle it will calculate it's mask.
+ */
 class Collideable extends Entity {
 	static var ALL:Array<Collideable> = new Array<Collideable>();
 
