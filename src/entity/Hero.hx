@@ -112,7 +112,7 @@ class Hero extends Collideable {
 			if (c.col.type == Solid) {
 				if (this.resolveY(c) != 0) {
 					dy = this.resolveY(c);
-					if (dy < EPSOLON)
+					if (Math.abs(dy) < EPSOLON)
 						dy = 0;
 
 					isGrounded = true;
@@ -125,7 +125,7 @@ class Hero extends Collideable {
 			if (c.col.type == Solid) {
 				if (this.resolveX(c) != 0) {
 					dx = resolveX(c);
-					if (dx < EPSOLON)
+					if (Math.abs(dx) < EPSOLON)
 						dx = 0;
 				}
 			}
@@ -166,7 +166,7 @@ class Hero extends Collideable {
 			if (c.col.type == Solid) {
 				if (this.resolveY(c) != 0) {
 					dy = resolveY(c); // Approach to ground or ceiling
-					if (dy < EPSOLON)
+					if (Math.abs(dy) < EPSOLON)
 						dy = 0;
 					setState(GROUND);
 				}
@@ -178,7 +178,7 @@ class Hero extends Collideable {
 			if (c.col.type == Solid) {
 				if (this.resolveX(c) != 0) {
 					dx = resolveX(c); // Approach to the wall
-					if (dx < EPSOLON)
+					if (Math.abs(dx) < EPSOLON)
 						dx = 0;
 				}
 			}

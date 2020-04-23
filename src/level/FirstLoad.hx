@@ -27,5 +27,12 @@ class FirstLoad extends Level {
 
 		if (f.kind == EPush && f.button == 0)
 			this.hero.setPosition(mouseX, mouseY);
+
+		if (f.kind == EKeyDown && f.keyCode == hxd.Key.C) {
+			for (elem in Collideable.ALL) {
+				elem.toggleDebug();
+			}
+			Game.LOG.add('Toggled Debug');
+		}
 	}
 }

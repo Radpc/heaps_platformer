@@ -17,15 +17,15 @@ class Entity {
 	var p:Object = null;
 
 	// Level
-	var level:Level;
+	var level(default, null):Level;
 
 	// Position
 	public var x(default, null):Float = 0;
 	public var y(default, null):Float = 0;
 
 	// Velocity
-	var dx:Float = 0;
-	var dy:Float = 0;
+	var dx(default, null):Float = 0;
+	var dy(default, null):Float = 0;
 
 	// Offset bitmap
 	var bx:Float = 0;

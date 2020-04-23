@@ -16,9 +16,11 @@ enum CollisionType {
 	of the update cycle it will calculate it's mask.
  */
 class Collideable extends Entity {
-	static var ALL:Array<Collideable> = new Array<Collideable>();
+	public static var ALL(default, null):Array<Collideable> = new Array<Collideable>();
 
 	var col:Collider;
+	var debug:Bool = false;
+	var debugB:Bitmap;
 	var myUpdate:Float->Void;
 
 	public function new(x:Float, y:Float, width:Float, height:Float, ?offsetX:Float = 0, ?offsetY:Float = 0, type:CollisionType, ?dormant:Bool = true,
@@ -27,12 +29,13 @@ class Collideable extends Entity {
 			b = new Bitmap(Tile.fromColor(0xffffff, Math.round(width), Math.round(height)));
 
 		super(x, y, level, b, a);
-
 		this.col = new Collider(width, height, type, offsetX, offsetY);
 		this.col.x = this.x;
 		this.col.y = this.y;
 
+		// Decides what type of update
 		dormant ? this.myUpdate = this.dormant : this.myUpdate = this.active;
+
 		ALL.push(this);
 	}
 
@@ -50,7 +53,46 @@ class Collideable extends Entity {
 		this.col.y = this.y + this.col.oy;
 	}
 
-	// GET COLLISIONS
+	// DEBUGS ---------------------------------
+
+	public function toggleDebug() {
+		if (debug) {
+			this.myUpdate == activeDebug ? this.myUpdate = active : this.myUpdate = dormant;
+			destroyDebugBitmap();
+			this.debug = false;
+		} else {
+			this.createDebugBitmap();
+			this.myUpdate == active ? this.myUpdate = activeDebug : this.myUpdate = dormantDebug;
+			this.debug = true;
+		}
+	}
+
+	function createDebugBitmap() {
+		this.debugB = new Bitmap(Tile.fromColor(0xff0000, Math.round(this.col.width), Math.round(this.col.height)));
+		this.debugB.alpha = 0.4;
+		this.level.addInCamera(debugB);
+	}
+
+	function destroyDebugBitmap() {
+		this.level.removeInCamera(debugB);
+		this.debugB = null;
+	}
+
+	function activeDebug(tmod:Float) {
+		super.update(tmod);
+		this.active(tmod);
+		this.debugB.x = this.col.x;
+		this.debugB.y = this.col.y;
+	}
+
+	function dormantDebug(tmod:Float) {
+		super.update(tmod);
+		this.dormant(tmod);
+		this.debugB.x = this.col.x;
+		this.debugB.y = this.col.y;
+	}
+
+	// GET COLLISIONS ----------------------------
 
 	public function resolveX(another:Collideable):Float {
 		if (this.col.x + this.dx >= another.col.x + another.col.width
@@ -82,6 +124,11 @@ class Collideable extends Entity {
 			// }
 			return MyMath.minAbs((another.col.y + another.col.height) - (this.col.y), ((another.col.y) - (this.col.y + this.col.height)));
 		}
+	}
+
+	override function delete() {
+		super.delete();
+		this.level.removeInCamera(debugB);
 	}
 }
 
