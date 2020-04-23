@@ -1,3 +1,4 @@
+import h2d.Anim;
 import util.MyMath;
 import h2d.Tile;
 import h2d.Bitmap;
@@ -21,11 +22,11 @@ class Collideable extends Entity {
 	var myUpdate:Float->Void;
 
 	public function new(x:Float, y:Float, width:Float, height:Float, ?offsetX:Float = 0, ?offsetY:Float = 0, type:CollisionType, ?dormant:Bool = true,
-			b:Bitmap, level:Level) {
-		if (b == null)
+			?b:Bitmap = null, ?a:Anim = null, level:Level) {
+		if (b == null && a == null)
 			b = new Bitmap(Tile.fromColor(0xffffff, Math.round(width), Math.round(height)));
 
-		super(x, y, level, b);
+		super(x, y, level, b, a);
 
 		this.col = new Collider(width, height, type, offsetX, offsetY);
 		this.col.x = this.x;

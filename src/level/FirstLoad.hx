@@ -13,20 +13,19 @@ class FirstLoad extends Level {
 	public function new() {
 		super();
 
-		hero = new Hero(50, 300, this);
-		wall = new Collideable(10, 400, 500, 100, 0, 0, Solid, true, null, this);
-		wall2 = new Collideable(300, 300, 50, 100, 0, 0, Solid, true, null, this);
+		hero = new Hero(50, 100, this);
+		wall = new Collideable(10, 200, 500, 10, 0, 0, Solid, true, null, this);
+		wall2 = new Collideable(300, 180, 210, 20, 0, 0, Solid, true, null, this);
+		this.camera.setFollow(hero);
 
 		addEventListener(myListener);
 	}
 
 	function myListener(f:Event):Void {
-		if (f.kind == EKeyDown && f.keyCode == hxd.Key.ESCAPE) {
+		if (f.kind == EKeyDown && f.keyCode == hxd.Key.Q)
 			hxd.System.exit();
-		}
 
-		if (f.kind == EPush && f.button == 0) {
-			this.hero.setPosition(hxd.Window.getInstance().mouseX, hxd.Window.getInstance().mouseY);
-		}
+		if (f.kind == EPush && f.button == 0)
+			this.hero.setPosition(mouseX, mouseY);
 	}
 }

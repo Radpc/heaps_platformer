@@ -20,8 +20,8 @@ class Entity {
 	var level:Level;
 
 	// Position
-	var x:Float = 0;
-	var y:Float = 0;
+	public var x(default, null):Float = 0;
+	public var y(default, null):Float = 0;
 
 	// Velocity
 	var dx:Float = 0;
@@ -70,17 +70,17 @@ class Entity {
 	}
 
 	public function setBitmap(b:Bitmap) {
-		this.level.removeChild(bitmap);
+		this.level.removeInCamera(bitmap);
 		this.bitmap = b;
-		this.level.addChild(bitmap);
+		this.level.addInCamera(bitmap);
 		this.bitmap.x = x + bx;
 		this.bitmap.y = y + by;
 	}
 
 	public function setAnim(a:Anim) {
-		this.level.removeChild(anim);
+		this.level.removeInCamera(anim);
 		this.anim = a;
-		this.level.addChild(anim);
+		this.level.addInCamera(anim);
 		this.anim.x = x + ax;
 		this.anim.y = y + ay;
 	}
@@ -99,7 +99,7 @@ class Entity {
 					this.myGraphicUpdate = updateBitmap;
 					if (remove) {
 						if (this.anim != null) {
-							this.level.removeChild(anim);
+							this.level.removeInCamera(anim);
 							this.anim = null;
 						}
 					}
@@ -108,7 +108,7 @@ class Entity {
 					this.myGraphicUpdate = updateAnim;
 					if (remove) {
 						if (this.bitmap != null) {
-							this.level.removeChild(bitmap);
+							this.level.removeInCamera(bitmap);
 							this.bitmap = null;
 						}
 					}
@@ -116,11 +116,11 @@ class Entity {
 					this.myGraphicUpdate = updateNothing;
 					if (remove) {
 						if (this.bitmap != null) {
-							this.level.removeChild(bitmap);
+							this.level.removeInCamera(bitmap);
 							this.bitmap = null;
 						}
 						if (this.anim != null) {
-							this.level.removeChild(anim);
+							this.level.removeInCamera(anim);
 							this.anim = null;
 						}
 					}
@@ -130,7 +130,7 @@ class Entity {
 				this.myGraphicUpdate = updateAnim;
 				if (remove) {
 					if (this.bitmap != null) {
-						this.level.removeChild(bitmap);
+						this.level.removeInCamera(bitmap);
 						this.bitmap = null;
 					}
 				}
@@ -139,7 +139,7 @@ class Entity {
 					this.myGraphicUpdate = updateBitmap;
 					if (remove) {
 						if (this.anim != null) {
-							this.level.removeChild(anim);
+							this.level.removeInCamera(anim);
 							this.anim = null;
 						}
 					}
@@ -147,11 +147,11 @@ class Entity {
 					this.myGraphicUpdate = updateNothing;
 					if (remove) {
 						if (this.bitmap != null) {
-							this.level.removeChild(bitmap);
+							this.level.removeInCamera(bitmap);
 							this.bitmap = null;
 						}
 						if (this.anim != null) {
-							this.level.removeChild(anim);
+							this.level.removeInCamera(anim);
 							this.anim = null;
 						}
 					}
@@ -176,8 +176,8 @@ class Entity {
 
 	public function delete() {
 		// Remove graphics
-		this.level.removeChild(this.anim);
-		this.level.removeChild(this.bitmap);
+		this.level.removeInCamera(this.anim);
+		this.level.removeInCamera(this.bitmap);
 
 		// Remove entity control
 		ALL.remove(this);

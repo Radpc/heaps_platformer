@@ -1,4 +1,3 @@
-import Entity;
 import level.FirstLoad;
 import util.Cooldown;
 
@@ -17,11 +16,12 @@ class Game extends hxd.App {
 	}
 
 	override function init() {
-		// Autoref
-		ME = this;
+		// Initialize the resources
+		hxd.Res.initEmbed();
 
 		// Create first scene
 		level = new FirstLoad();
+		level.scaleMode = LetterBox(400, 300);
 
 		// Initialize the log
 		LOG = new ui.Log(level);
@@ -29,14 +29,20 @@ class Game extends hxd.App {
 
 		// Change the scene
 		setScene2D(level);
+
+		// Vsync
 		hxd.Window.getInstance().vsync = true;
+
+		// Fullscreen
+		engine.fullScreen = true;
 
 		READY = true;
 	}
 
 	public function new() {
 		super();
-		hxd.Res.initEmbed();
+		// Autoref
+		ME = this;
 	}
 
 	static function main() {
@@ -45,9 +51,14 @@ class Game extends hxd.App {
 
 	override function update(dt:Float) {
 		super.update(dt);
+
+		// Create a variable tmod
 		var tmod = hxd.Timer.tmod * speed;
+
+		// Update the level
 		this.level.updateAll(tmod);
 
+		// Update alarms
 		Cooldown.updateAll(dt);
 	}
 

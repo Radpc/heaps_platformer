@@ -12,7 +12,7 @@ class Log extends Text implements UI {
 	var level:Level;
 
 	final paddingBottom:Int = 5;
-	final paddingLeft:Int = 10;
+	final paddingLeft:Int = 2;
 	final maxSize:Int = 4;
 
 	override public function new(level:Level) {
@@ -55,7 +55,7 @@ class Log extends Text implements UI {
 		this.messageHeight = Math.round(get_textHeight());
 
 		this.x = paddingLeft;
-		this.y = hxd.Window.getInstance().height - paddingBottom - this.messageHeight;
+		this.y = level.height - paddingBottom - this.messageHeight;
 	}
 
 	public function onDelete() {

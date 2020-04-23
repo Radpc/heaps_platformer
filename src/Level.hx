@@ -1,3 +1,4 @@
+import h2d.Object;
 import h2d.Scene;
 
 class Level extends Scene {
@@ -6,6 +7,22 @@ class Level extends Scene {
 
 	// My UI
 	var uiArray:Array<UI> = new Array<UI>();
+
+	// My Camera
+	var camera:Camera;
+
+	public function addInCamera(obj:Object) {
+		this.camera.addChild(obj);
+	}
+
+	public function removeInCamera(obj:Object) {
+		this.camera.removeChild(obj);
+	}
+
+	public function new() {
+		super();
+		this.camera = new Camera(this);
+	}
 
 	public function addUI(r:UI)
 		this.uiArray.push(r);
@@ -39,6 +56,8 @@ class Level extends Scene {
 				ui.update(dt);
 			}
 		}
+
+		this.camera.update(dt);
 	}
 
 	function deleteAll() {
@@ -47,6 +66,60 @@ class Level extends Scene {
 		}
 		for (ui in this.uiArray) {
 			ui.onDelete();
+		}
+	}
+}
+
+class Camera extends Object {
+	public var viewX(get, set):Float;
+	public var viewY(get, set):Float;
+
+	var following:Entity;
+	var whatToDo:Float->Void;
+
+	var level:Level;
+
+	public function new(level:Level) {
+		super(level);
+		this.level = level;
+		this.whatToDo = updNothing;
+	}
+
+	private function set_viewX(value:Float):Float {
+		this.x = 0.5 * level.width - value;
+		return value;
+	}
+
+	private function get_viewX():Float {
+		return 0.5 * level.width - this.x;
+	}
+
+	private function set_viewY(value:Float):Float {
+		this.y = 0.5 * level.height - value;
+		return value;
+	}
+
+	private function get_viewY():Float {
+		return 0.5 * level.height - this.y;
+	}
+
+	public function update(dt:Float) {
+		whatToDo(dt);
+	}
+
+	public function setFollow(e:Entity) {
+		this.following = e;
+		this.whatToDo = updFollowEntity;
+	}
+
+	public function updNothing(dt:Float) {}
+
+	function updFollowEntity(dt:Float) {
+		if (following != null) {
+			viewX = following.x;
+			viewY = following.y;
+		} else {
+			this.whatToDo = updNothing;
 		}
 	}
 }

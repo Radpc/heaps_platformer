@@ -1,5 +1,7 @@
 package entity;
 
+import hxd.Res;
+import h2d.Anim;
 import util.Cooldown;
 import h2d.Tile;
 import h2d.Bitmap;
@@ -17,27 +19,36 @@ class Hero extends Collideable {
 	final ACCEL = 0.5;
 	final DECCEL = 0.1;
 	final maxDy = 30;
-	final maxDx = 5;
-	final GRAVITY = 0.8;
-	final JUMP_POWER = 10;
+	final maxDx = 2;
+	final GRAVITY = 0.3;
+	final JUMP_POWER = 4;
 	final AIRFACTOR = 0.5;
-
-	// Sprite
-	final SPR_WIDTH:Int = 30;
-	final SPR_HEIGHT:Int = 30;
+	final EPSOLON = 0.1;
 
 	// Collision
 	final COL_WIDTH:Float = 30;
 	final COL_HEIGHT:Float = 30;
 	final COL_X_OFFSET:Float = 0;
-	final COL_Y_OFFSET:Float = 0;
+	final COL_Y_OFFSET:Float = 6;
 
 	// State function
 	var state:Float->Void;
 	var stateName:State;
 
 	public function new(x, y, level) {
-		super(x, y, COL_WIDTH, COL_HEIGHT, COL_X_OFFSET, COL_Y_OFFSET, Player, false, new Bitmap(Tile.fromColor(0xff00ff, SPR_WIDTH, SPR_HEIGHT)), level);
+		// The bitmap
+		// var b:Bitmap = new Bitmap(Tile.fromColor(0xff00ff, SPR_WIDTH, SPR_HEIGHT));
+
+		// var t1:Tile = Tile.fromColor(0xff00ff, SPR_WIDTH, SPR_HEIGHT);
+		// var t2:Tile = Tile.fromColor(0x00ffff, SPR_WIDTH, SPR_HEIGHT);
+		// var t3:Tile = Tile.fromColor(0x0000ff, SPR_WIDTH, SPR_HEIGHT);
+
+		var t1:Tile = Res.hero.adventurer_idle_00.toTile();
+		var t2:Tile = Res.hero.adventurer_idle_01.toTile();
+
+		var b:Anim = new Anim([t1, t2], 2);
+
+		super(x, y, COL_WIDTH, COL_HEIGHT, COL_X_OFFSET, COL_Y_OFFSET, Player, false, b, level);
 
 		// Set first state
 		setState(GROUND);
@@ -89,10 +100,6 @@ class Hero extends Collideable {
 		direction != 0 ? this.dx += direction * tmod * ACCEL : this.dx /= 1 + tmod * DECCEL;
 
 		// Other bindings -----------------------------------
-		// Change bitmap
-		if (K.isDown(K.A))
-			this.bitmap.tile = Tile.fromColor(Std.random(0xffffff), 30, 30);
-
 		// Jump
 		if (K.isDown(K.UP)) {
 			this.dy -= JUMP_POWER;
@@ -105,6 +112,9 @@ class Hero extends Collideable {
 			if (c.col.type == Solid) {
 				if (this.resolveY(c) != 0) {
 					dy = this.resolveY(c);
+					if (dy < EPSOLON)
+						dy = 0;
+
 					isGrounded = true;
 				}
 			}
@@ -115,6 +125,8 @@ class Hero extends Collideable {
 			if (c.col.type == Solid) {
 				if (this.resolveX(c) != 0) {
 					dx = resolveX(c);
+					if (dx < EPSOLON)
+						dx = 0;
 				}
 			}
 		}
@@ -154,6 +166,8 @@ class Hero extends Collideable {
 			if (c.col.type == Solid) {
 				if (this.resolveY(c) != 0) {
 					dy = resolveY(c); // Approach to ground or ceiling
+					if (dy < EPSOLON)
+						dy = 0;
 					setState(GROUND);
 				}
 			}
@@ -164,6 +178,8 @@ class Hero extends Collideable {
 			if (c.col.type == Solid) {
 				if (this.resolveX(c) != 0) {
 					dx = resolveX(c); // Approach to the wall
+					if (dx < EPSOLON)
+						dx = 0;
 				}
 			}
 		}
