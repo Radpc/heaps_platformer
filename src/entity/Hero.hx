@@ -2,9 +2,7 @@ package entity;
 
 import hxd.Res;
 import h2d.Anim;
-import util.Cooldown;
 import h2d.Tile;
-import h2d.Bitmap;
 import hxd.Key in K;
 
 using util.MyMath;
@@ -12,10 +10,12 @@ using util.MyMath;
 enum State {
 	GROUND;
 	AIR;
+	WALL;
 }
 
+@:publicFields
 class Hero extends Collideable {
-	// Values
+	// Defines
 	final ACCEL = 0.5;
 	final DECCEL = 0.1;
 	final maxDy = 30;
@@ -23,12 +23,18 @@ class Hero extends Collideable {
 	final GRAVITY = 0.3;
 	final JUMP_POWER = 4;
 	final AIRFACTOR = 0.5;
+	final WALLFACTOR = 0.2;
+	final WALLUPDECCEL = 0.1;
 	final EPSOLON = 0.1;
 
+	// Variables
+	var direction:Int = 0;
+	var wallSide:Int = 0;
+
 	// Collision
-	final COL_WIDTH:Float = 30;
+	final COL_WIDTH:Float = 15;
 	final COL_HEIGHT:Float = 30;
-	final COL_X_OFFSET:Float = 0;
+	final COL_X_OFFSET:Float = 15;
 	final COL_Y_OFFSET:Float = 6;
 
 	// State function
@@ -39,12 +45,8 @@ class Hero extends Collideable {
 		// The bitmap
 		// var b:Bitmap = new Bitmap(Tile.fromColor(0xff00ff, SPR_WIDTH, SPR_HEIGHT));
 
-		// var t1:Tile = Tile.fromColor(0xff00ff, SPR_WIDTH, SPR_HEIGHT);
-		// var t2:Tile = Tile.fromColor(0x00ffff, SPR_WIDTH, SPR_HEIGHT);
-		// var t3:Tile = Tile.fromColor(0x0000ff, SPR_WIDTH, SPR_HEIGHT);
-
-		var t1:Tile = Res.hero.adventurer_idle_00.toTile();
-		var t2:Tile = Res.hero.adventurer_idle_01.toTile();
+		var t1:Tile = Res.graphic.hero.adventurer_idle_00.toTile();
+		var t2:Tile = Res.graphic.hero.adventurer_idle_01.toTile();
 
 		var b:Anim = new Anim([t1, t2], 2);
 
@@ -74,23 +76,29 @@ class Hero extends Collideable {
 		switch (s) {
 			case GROUND:
 				this.state = stGround;
-
 			case AIR:
 				this.state = stAir;
+			case WALL:
+				this.state = stOnWall;
 		}
 	}
 
-	// States =======================================================================
+	// ==========================================================================================================
+	// STATES ===================================================================================================
+	// ==========================================================================================================
+	//
+	// -----------------------------------------------------------------------------------
 	// Moving state - Ground
+	// -----------------------------------------------------------------------------------
 	function stGround(tmod:Float) {
-		// Apply gravity to check ground --------------------
+		// Apply gravity to check ground
 		this.dy += GRAVITY;
 
-		// Initial flags ------------------------------------
+		// Initial flags
 		var isGrounded:Bool = false;
-		var direction:Int = 0;
+		direction = 0;
 
-		// X movement ---------------------------------------
+		// X movement
 		if (K.isDown(K.RIGHT))
 			direction++;
 
@@ -99,14 +107,14 @@ class Hero extends Collideable {
 
 		direction != 0 ? this.dx += direction * tmod * ACCEL : this.dx /= 1 + tmod * DECCEL;
 
-		// Other bindings -----------------------------------
+		// Other bindings
 		// Jump
 		if (K.isDown(K.UP)) {
 			this.dy -= JUMP_POWER;
 			setState(AIR);
 		}
 
-		// Collision ----------------------------------------
+		// Collision
 		// Y
 		for (c in Collideable.ALL) {
 			if (c.col.type == Solid) {
@@ -131,27 +139,29 @@ class Hero extends Collideable {
 			}
 		}
 
-		// Change state if needed ---------------------------
+		// Change state if needed
 		if (!isGrounded && stateName != AIR) {
 			setState(AIR);
 		}
 
-		// Real movement ------------------------------------
+		// Real movement
 		this.dy = dy.clamp(maxDy);
 		this.dx = dx.clamp(maxDx);
 		this.x += this.dx * tmod;
 		this.y += this.dy * tmod;
 	}
 
+	// -----------------------------------------------------------------------------------
 	// Moving state - Air
+	// -----------------------------------------------------------------------------------
 	function stAir(tmod:Float) {
-		// Apply gravity to check ground --------------------
+		// Apply gravity to check ground
 		dy += GRAVITY * tmod;
 
-		// Initial flags ------------------------------------
-		var direction:Int = 0;
+		// Initial flags
+		direction = 0;
 
-		// X movement ---------------------------------------
+		// X movement
 		if (K.isDown(K.RIGHT))
 			direction++;
 
@@ -160,7 +170,7 @@ class Hero extends Collideable {
 
 		direction != 0 ? this.dx += direction * tmod * ACCEL * AIRFACTOR : this.dx /= 1 + tmod * DECCEL * AIRFACTOR;
 
-		// Collision ----------------------------------------
+		// Collision
 		// Y
 		for (c in Collideable.ALL) {
 			if (c.col.type == Solid) {
@@ -180,11 +190,76 @@ class Hero extends Collideable {
 					dx = resolveX(c); // Approach to the wall
 					if (Math.abs(dx) < EPSOLON)
 						dx = 0;
+
+					// Set the side of the wall, and the state
+					if ((dx == 0 || this.direction == (dx < 0 ? -1 : 1)) && this.direction != 0) {
+						this.wallSide = this.direction;
+						setState(WALL);
+					}
 				}
 			}
 		}
 
-		// Real movement ------------------------------------
+		// Real movement
+		this.dy = dy.clamp(maxDy);
+		this.dx = dx.clamp(maxDx);
+		this.x += this.dx * tmod;
+		this.y += this.dy * tmod;
+	}
+
+	// -----------------------------------------------------------------------------------
+	// Moving state - Wall
+	// -----------------------------------------------------------------------------------
+	function stOnWall(tmod:Float) {
+		// Initial flags
+		var isWalled:Bool = false;
+		direction = 0;
+
+		// Add light gravity
+		dy += GRAVITY * tmod * WALLFACTOR;
+
+		if (K.isDown(K.RIGHT))
+			direction++;
+
+		if (K.isDown(K.LEFT))
+			direction--;
+
+		this.dx += direction;
+
+		if (dy < 0) {
+			this.dy *= 1 - WALLUPDECCEL * tmod;
+		}
+
+		// Collision
+		// Y
+		for (c in Collideable.ALL) {
+			if (c.col.type == Solid) {
+				if (this.resolveY(c) != 0) {
+					dy = resolveY(c); // Approach to ground or ceiling
+					if (Math.abs(dy) < EPSOLON)
+						dy = 0;
+					setState(GROUND);
+				}
+			}
+		}
+
+		// X
+		for (c in Collideable.ALL) {
+			if (c.col.type == Solid) {
+				if (this.resolveX(c) != 0) {
+					dx = resolveX(c); // Approach to the wall
+					if (Math.abs(dx) < EPSOLON)
+						dx = 0;
+					isWalled = true;
+				}
+			}
+		}
+
+		if (direction != wallSide || !isWalled) {
+			setState(AIR);
+		}
+
+		// Real movement
 		this.dy = dy.clamp(maxDy);
 		this.dx = dx.clamp(maxDx);
 		this.x += this.dx * tmod;

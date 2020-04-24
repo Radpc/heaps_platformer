@@ -41,6 +41,7 @@ class Level extends Scene {
 			eventListeners.remove(ev);
 
 		this.deleteAll();
+		this.camera = null;
 		this.remove();
 	}
 

@@ -1,4 +1,4 @@
-import level.FirstLoad;
+import levels.Stage1;
 import util.Cooldown;
 
 class Game extends hxd.App {
@@ -20,7 +20,7 @@ class Game extends hxd.App {
 		hxd.Res.initEmbed();
 
 		// Create first scene
-		level = new FirstLoad();
+		level = new Stage1();
 		level.scaleMode = LetterBox(400, 300);
 
 		// Initialize the log
@@ -35,6 +35,9 @@ class Game extends hxd.App {
 
 		// Fullscreen
 		engine.fullScreen = true;
+
+		// Set title
+		hxd.Window.getInstance().title = 'In the heaps of time';
 
 		READY = true;
 	}

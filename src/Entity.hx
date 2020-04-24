@@ -10,6 +10,10 @@ enum GraphicType {
 	None;
 }
 
+/**
+ * A base class for everything that have anims/updates
+ */
+@:publicFields
 class Entity {
 	static public var ALL:Array<Entity> = new Array<Entity>();
 
@@ -173,11 +177,13 @@ class Entity {
 	function updateNothing(tmod:Float) {}
 
 	// ----------------------------------------------------------------
-
 	public function delete() {
 		// Remove graphics
 		this.level.removeInCamera(this.anim);
 		this.level.removeInCamera(this.bitmap);
+
+		this.anim.remove();
+		this.bitmap.remove();
 
 		// Remove entity control
 		ALL.remove(this);

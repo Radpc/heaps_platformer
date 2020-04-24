@@ -23,6 +23,20 @@ class Collideable extends Entity {
 	var debugB:Bitmap;
 	var myUpdate:Float->Void;
 
+	/**
+	 * Constructor for an entity with a connected collision mask to itself
+	 * @param x The X position of the entity
+	 * @param y The Y position of the entity
+	 * @param width The width of the collision mask
+	 * @param height The height of the collision mask
+	 * @param offsetX The X offset of the collision mask
+	 * @param offsetY The Y offset of the collision mask
+	 * @param type The type of collider (Solid, bouncy, etc)
+	 * @param dormant If it's dormant, don't update it's col's X and Y
+	 * @param b The bitmap for the entity
+	 * @param a The animation for the entity
+	 * @param level The level it's attributed to
+	 */
 	public function new(x:Float, y:Float, width:Float, height:Float, ?offsetX:Float = 0, ?offsetY:Float = 0, type:CollisionType, ?dormant:Bool = true,
 			?b:Bitmap = null, ?a:Anim = null, level:Level) {
 		if (b == null && a == null)
